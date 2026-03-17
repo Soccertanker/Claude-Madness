@@ -23,6 +23,7 @@ INJURED_TEAMS = {
     "North Carolina":  "Caleb Wilson - season-ending thumb fracture; projected top-5 NBA pick",
     "Michigan":        "L.J. Cason - torn ACL",
     "Villanova":       "Matt Hodge - torn ACL",
+    "Alabama":         "Aden Holloway  - felony Arrest ",
 }
 
 INJURY_PENALTY = 0.20  # 20% reduction to win probability
@@ -309,6 +310,7 @@ def write_html_results(all_results, filename=None):
         ("Richie Saunders","BYU",            "(6) West",    "Torn ACL – mid-February",       "Key starter alongside AJ Dybantsa"),
         ("L.J. Cason",     "Michigan",       "(1) Midwest", "Torn ACL",                      "Key rotation player for #1 seed"),
         ("Matt Hodge",     "Villanova",      "(8) West",    "Torn ACL",                      "Starter for Big East squad"),
+        ("Aden Holloway",  "Alabama",        "(4) Midwest", "Felony Arrest",                 "Key guard"),
     ]
     for player, team, seed_r, injury, impact in injury_notes:
         injury_rows_html += f'''
