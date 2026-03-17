@@ -388,14 +388,14 @@ def write_html_results(all_results, filename=None):
     <div class="finals-section">
       <div class="finals-grid">
         <div class="finals-side">
-          <div class="finals-label">Final Four · Game 1</div>
+          <div class="finals-label">Final Four · East vs South</div>
           {finals_slot(ff1_w, ff1_ws, True)}
           <div style="padding:4px 0; text-align:center; font-size:0.7rem; color:#555; letter-spacing:.15em;">defeated</div>
           {finals_slot(ff1_l, ff1_ls, False)}
         </div>
         <div class="finals-divider">vs</div>
         <div class="finals-side">
-          <div class="finals-label">Final Four · Game 2</div>
+          <div class="finals-label">Final Four · West vs Midwest</div>
           {finals_slot(ff2_w, ff2_ws, True)}
           <div style="padding:4px 0; text-align:center; font-size:0.7rem; color:#555; letter-spacing:.15em;">defeated</div>
           {finals_slot(ff2_l, ff2_ls, False)}
@@ -861,10 +861,10 @@ def simulate_tournament(seed=None):
     print(f"\n{'═'*55}")
     print("  FINAL FOUR")
     print(f"{'═'*55}\n")
-    print("  East vs. West:")
-    f1w, f1ws, f1l, f1ls = simulate_game(east_champ, east_seed, west_champ, west_seed)
-    print("\n  South vs. Midwest:")
-    f2w, f2ws, f2l, f2ls = simulate_game(south_champ, south_seed, midwest_champ, midwest_seed)
+    print("  East vs. South:")
+    f1w, f1ws, f1l, f1ls = simulate_game(east_champ, east_seed, south_champ, south_seed)
+    print("\n  West vs. Midwest:")
+    f2w, f2ws, f2l, f2ls = simulate_game(west_champ, west_seed, midwest_champ, midwest_seed)
 
     # ── Championship ────────────────────────────────────────────────────────
     print(f"\n{'═'*55}")
