@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 NCAA March Madness Bracket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0a1a;
+    --surface:   #12122a;
+    --surface2:  #1a1a35;
+    --border:    #2a2a4a;
+    --gold:      #ffd700;
+    --gold-dim:  #b8960a;
+    --text:      #e8e8f5;
+    --text-dim:  #7878a8;
+    --east:      #4488ff;
+    --west:      #ff6644;
+    --south:     #44cc88;
+    --midwest:   #cc44ff;
+    --injury:    #ff4444;
+    --team-h:    34px;
+    --gap:       6px;
+    --line:      #3a3a6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    text-align: center;
+    padding: 48px 20px 36px;
+    background: linear-gradient(180deg, #0d0d2b 0%, transparent 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,215,0,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .site-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #ffe066 0%, #ffd700 40%, #ffaa00 70%, #ff8800 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    filter: drop-shadow(0 0 40px rgba(255,215,0,0.35));
+    line-height: 1;
+  }
+  .site-header .subtitle {
+    margin-top: 10px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .site-header .subtitle span {
+    color: var(--gold);
+  }
+
+  /* ── Section labels ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-align: center;
+    margin: 40px 0 18px;
+    text-shadow: 0 0 20px rgba(255,215,0,0.4);
+  }
+
+  /* ── First Four ── */
+  .first-four-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 960px;
+    margin: 0 auto 16px;
+    padding: 0 20px;
+  }
+  @media (max-width: 800px) {
+    .first-four-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .ff-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .ff-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .ff-card-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ff-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .ff-seed {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--gold);
+    min-width: 20px;
+  }
+  .ff-vs {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    padding: 2px 0;
+  }
+  .ff-arrow {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── 2×2 Region grid ── */
+  .regions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 0 20px 40px;
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1200px) {
+    .regions-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Region panel ── */
+  .region-panel {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .region-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .region-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .region-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.12em;
+  }
+  .round-labels {
+    display: flex;
+    gap: 0;
+    padding: 0 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .round-label-cell {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+    padding: 6px 0;
+  }
+
+  /* ── Bracket body ── */
+  .bracket-body {
+    display: flex;
+    flex-direction: row;
+    padding: 14px 14px 14px 14px;
+    gap: 0;
+    align-items: stretch;
+    min-height: 520px;
+  }
+
+  /* ── Round column ── */
+  .round-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-shrink: 0;
+  }
+
+  /* ── Team slot ── */
+  .team-slot {
+    height: var(--team-h);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: background 0.15s, box-shadow 0.15s;
+    position: relative;
+    cursor: default;
+  }
+  .team-slot:hover {
+    background: #1e1e40;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    z-index: 2;
+  }
+  .team-slot.injured {
+    border-left: 3px solid var(--injury);
+  }
+  .team-slot.injured:hover {
+    box-shadow: 0 2px 16px rgba(255,68,68,0.25);
+  }
+
+  .seed-badge {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    min-width: 18px;
+    text-align: center;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .team-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
+  .conf-tag {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    padding: 1px 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+  .inj-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--injury);
+    border-radius: 3px;
+    padding: 1px 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+    animation: inj-pulse 2s ease-in-out infinite;
+  }
+  @keyframes inj-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+  }
+
+  /* ── Matchup (pair of team slots) ── */
+  .matchup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    position: relative;
+    padding-right: 22px;
+  }
+  .matchup .team-slot:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 22px;
+    border-top: 2px solid var(--line);
+    border-right: 2px solid var(--line);
+    height: calc(50% + var(--gap)/2 + var(--team-h)/2 + 2px);
+  }
+  .matchup .team-slot:last-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 50%;
+    width: 22px;
+    border-bottom: 2px solid var(--line);
+    border-right: 2px solid var(--line);
+    height: calc(50% + var(--gap)/2 + var(--team-h)/2 + 2px);
+  }
+
+  /* blank slots for R2, S16, E8 */
+  .blank-slot {
+    height: var(--team-h);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: transparent;
+    position: relative;
+  }
+  .blank-matchup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding-right: 22px;
+    position: relative;
+  }
+  .blank-matchup .blank-slot:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 22px;
+    border-top: 2px solid var(--line);
+    border-right: 2px solid var(--line);
+    height: calc(50% + var(--gap)/2 + var(--team-h)/2 + 2px);
+  }
+  .blank-matchup .blank-slot:last-child::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 50%;
+    width: 22px;
+    border-bottom: 2px solid var(--line);
+    border-right: 2px solid var(--line);
+    height: calc(50% + var(--gap)/2 + var(--team-h)/2 + 2px);
+  }
+
+  /* E8 solo slot (no connector) */
+  .solo-blank {
+    height: var(--team-h);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: transparent;
+  }
+
+  /* connecting line from previous round to current matchup */
+  .connector {
+    width: 20px;
+    flex-shrink: 0;
+    position: relative;
+    align-self: stretch;
+  }
+  .connector::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--line);
+    transform: translateY(-50%);
+  }
+
+  /* ── Final Four / Championship ── */
+  .finals-section {
+    max-width: 700px;
+    margin: 0 auto 48px;
+    padding: 0 20px;
+  }
+  .finals-grid {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0;
+    align-items: center;
+  }
+  .finals-side {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .finals-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .finals-slot {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    height: 40px;
+    background: transparent;
+  }
+  .finals-divider {
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .championship-box {
+    margin-top: 24px;
+    border: 2px dashed var(--gold-dim);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .championship-box .champ-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .championship-slot {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    height: 48px;
+    background: transparent;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  /* ── Injury table ── */
+  .injury-section {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+  }
+  .injury-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .injury-table th {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 2px solid var(--border);
+    text-align: left;
+  }
+  .injury-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .injury-table tr:hover td {
+    background: rgba(255,255,255,0.025);
+  }
+  .injury-table .player-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .injury-table .team-cell {
+    color: var(--text-dim);
+  }
+  .injury-table .injury-text {
+    color: var(--injury);
+    font-weight: 500;
+  }
+  .injury-table .impact-text {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 0.8rem;
+  }
+  .seed-region-cell {
+    white-space: nowrap;
+  }
+
+  /* ── Divider line ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 20px 40px;
+  }
+
+  /* glowing accent bar under header */
+  .glow-bar {
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 18px auto 0;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ HEADER ═══ -->
+<header class="site-header">
+  <h1>2026 NCAA March Madness</h1>
+  <div class="glow-bar"></div>
+  <p class="subtitle">68 Teams · 4 Regions · 1 Champion · <span>March 17 – April 6, 2026</span></p>
+</header>
+
+<!-- ══════════════════════════════════════════ FIRST FOUR ══ -->
+<div class="section-label">First Four — Dayton, OH · March 17–18</div>
+<div class="first-four-grid" id="firstFourGrid"></div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════ REGIONS ══════ -->
+<div class="section-label">The Bracket</div>
+<div class="regions-grid" id="regionsGrid"></div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════ FINALS ═══════ -->
+<div class="section-label">Final Four &amp; National Championship</div>
+<div class="finals-section">
+  <div class="finals-grid">
+    <div class="finals-side">
+      <div class="finals-label">East Champion</div>
+      <div class="finals-slot"></div>
+      <div class="finals-label" style="margin-top:8px">West Champion</div>
+      <div class="finals-slot"></div>
+    </div>
+    <div class="finals-divider">vs</div>
+    <div class="finals-side">
+      <div class="finals-label">South Champion</div>
+      <div class="finals-slot"></div>
+      <div class="finals-label" style="margin-top:8px">Midwest Champion</div>
+      <div class="finals-slot"></div>
+    </div>
+  </div>
+  <div class="championship-box">
+    <div class="champ-label">🏆 National Champion</div>
+    <div class="championship-slot"></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════════ INJURIES ═════ -->
+<div class="section-label">Injury Report</div>
+<div class="injury-section">
+  <table class="injury-table" id="injuryTable"></table>
+</div>
+
+<!-- ═══════════════════════════════════════════ SCRIPT ══════ -->
+<script>
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const INJURIES = {
+  "BYU":            { player: "Richie Saunders", note: "Torn ACL – mid-February. Key starter alongside AJ Dybantsa." },
+  "Villanova":      { player: "Matt Hodge",      note: "Torn ACL. Starter for Big East squad." },
+  "North Carolina": { player: "Caleb Wilson",    note: "Season-ending thumb fracture. Projected top-5 NBA pick." },
+  "Clemson":        { player: "Carter Welling",  note: "Torn ACL – ACC Tournament. 2nd-leading scorer, top rebounder." },
+  "Michigan":       { player: "L.J. Cason",      note: "Torn ACL. Key rotation player for #1 seed." },
+  "Texas Tech":     { player: "JT Toppin",       note: "Torn ACL – Feb 17. Wooden Award contender, 21.8 ppg / 10.8 reb." },
+};
+
+const REGIONS = [
+  {
+    name: "East", color: "#4488ff",
+    teams: [
+      [1,  "Duke",               "ACC"],
+      [2,  "UConn",              "Big East"],
+      [3,  "Michigan State",     "Big Ten"],
+      [4,  "Kansas",             "Big 12"],
+      [5,  "St. John's",         "Big East"],
+      [6,  "Louisville",         "ACC"],
+      [7,  "UCLA",               "Big Ten"],
+      [8,  "Ohio State",         "Big Ten"],
+      [9,  "TCU",                "Big 12"],
+      [10, "UCF",                "AAC"],
+      [11, "South Florida",      "AAC"],
+      [12, "Northern Iowa",      "MVC"],
+      [13, "Cal Baptist",        "WAC"],
+      [14, "North Dakota State", "Summit"],
+      [15, "Furman",             "SoCon"],
+      [16, "Siena",              "MAAC"],
+    ]
+  },
+  {
+    name: "West", color: "#ff6644",
+    teams: [
+      [1,  "Arizona",         "Big 12"],
+      [2,  "Purdue",          "Big Ten"],
+      [3,  "Gonzaga",         "WCC"],
+      [4,  "Arkansas",        "SEC"],
+      [5,  "Wisconsin",       "Big Ten"],
+      [6,  "BYU",             "Big 12"],
+      [7,  "Miami (FL)",      "ACC"],
+      [8,  "Villanova",       "Big East"],
+      [9,  "Utah State",      "MWC"],
+      [10, "Missouri",        "SEC"],
+      [11, "Texas/NC State*", "Big 12/ACC"],
+      [12, "High Point",      "Big South"],
+      [13, "Hawaii",          "Big West"],
+      [14, "Kennesaw State",  "ASUN"],
+      [15, "Queens",          "ASUN"],
+      [16, "LIU",             "America East"],
+    ]
+  },
+  {
+    name: "South", color: "#44cc88",
+    teams: [
+      [1,  "Florida",          "SEC"],
+      [2,  "Houston",          "Big 12"],
+      [3,  "Illinois",         "Big Ten"],
+      [4,  "Nebraska",         "Big Ten"],
+      [5,  "Vanderbilt",       "SEC"],
+      [6,  "North Carolina",   "ACC"],
+      [7,  "St. Mary's",       "WCC"],
+      [8,  "Clemson",          "ACC"],
+      [9,  "Iowa",             "Big Ten"],
+      [10, "Texas A&M",        "SEC"],
+      [11, "VCU",              "Atlantic 10"],
+      [12, "McNeese",          "Southland"],
+      [13, "Troy",             "Sun Belt"],
+      [14, "Penn",             "Ivy League"],
+      [15, "Idaho",            "Big Sky"],
+      [16, "PV A&M/Lehigh*",   "SWAC/Patriot"],
+    ]
+  },
+  {
+    name: "Midwest", color: "#cc44ff",
+    teams: [
+      [1,  "Michigan",          "Big Ten"],
+      [2,  "Iowa State",        "Big 12"],
+      [3,  "Virginia",          "ACC"],
+      [4,  "Alabama",           "SEC"],
+      [5,  "Texas Tech",        "Big 12"],
+      [6,  "Tennessee",         "SEC"],
+      [7,  "Kentucky",          "SEC"],
+      [8,  "Georgia",           "SEC"],
+      [9,  "St. Louis",         "Atlantic 10"],
+      [10, "Santa Clara",       "WCC"],
+      [11, "Miami OH/SMU*",     "MAC/AAC"],
+      [12, "Akron",             "MAC"],
+      [13, "Hofstra",           "CAA"],
+      [14, "Wright State",      "Horizon"],
+      [15, "Tennessee State",   "ASUN"],
+      [16, "UMBC/Howard*",      "AE/MEAC"],
+    ]
+  }
+];
+
+const FIRST_FOUR = [
+  { seed: 16, t1: "UMBC",            t2: "Howard",         dest: "(1) Michigan — Midwest"  },
+  { seed: 16, t1: "Prairie View A&M",t2: "Lehigh",         dest: "(1) Florida — South"     },
+  { seed: 11, t1: "Texas",           t2: "NC State",       dest: "(6) BYU — West"          },
+  { seed: 11, t1: "Miami (OH)",      t2: "SMU",            dest: "(6) Tennessee — Midwest" },
+];
+
+// First Round matchup order: (1v16),(8v9),(5v12),(4v13),(6v11),(3v14),(7v10),(2v15)
+const MATCHUP_ORDER = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
+
+const INJURY_NOTES = [
+  { player:"JT Toppin",     team:"Texas Tech",     seed:"(5) Midwest", injury:"Torn ACL – Feb 17",             impact:"Wooden Award contender, 21.8 ppg / 10.8 reb" },
+  { player:"Caleb Wilson",  team:"North Carolina", seed:"(6) South",   injury:"Season-ending thumb fracture",  impact:"Projected top-5 NBA pick" },
+  { player:"Carter Welling",team:"Clemson",        seed:"(8) South",   injury:"Torn ACL – ACC Tournament",     impact:"2nd-leading scorer, top rebounder" },
+  { player:"Richie Saunders",team:"BYU",           seed:"(6) West",    injury:"Torn ACL – mid-February",       impact:"Key starter alongside AJ Dybantsa" },
+  { player:"L.J. Cason",   team:"Michigan",        seed:"(1) Midwest", injury:"Torn ACL",                      impact:"Key rotation player for #1 seed" },
+  { player:"Matt Hodge",   team:"Villanova",       seed:"(8) West",    injury:"Torn ACL",                      impact:"Starter for Big East squad" },
+];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function seedMap(teams) {
+  const m = {};
+  teams.forEach(([s, name, conf]) => { m[s] = { name, conf }; });
+  return m;
+}
+
+function makeTeamSlot(seed, name, conf, regionColor) {
+  const isInj = INJURIES.hasOwnProperty(name);
+  const el = document.createElement('div');
+  el.className = 'team-slot' + (isInj ? ' injured' : '');
+  if (isInj) el.title = `[INJ] ${INJURIES[name].player}: ${INJURIES[name].note}`;
+
+  const sb = document.createElement('span');
+  sb.className = 'seed-badge';
+  sb.style.color = regionColor;
+  sb.textContent = seed;
+  el.appendChild(sb);
+
+  const tn = document.createElement('span');
+  tn.className = 'team-name';
+  tn.textContent = name;
+  el.appendChild(tn);
+
+  if (conf) {
+    const ct = document.createElement('span');
+    ct.className = 'conf-tag';
+    ct.textContent = conf;
+    el.appendChild(ct);
+  }
+
+  if (isInj) {
+    const ib = document.createElement('span');
+    ib.className = 'inj-badge';
+    ib.textContent = 'INJ';
+    ib.title = `${INJURIES[name].player}: ${INJURIES[name].note}`;
+    el.appendChild(ib);
+  }
+
+  return el;
+}
+
+function makeBlankSlot() {
+  const el = document.createElement('div');
+  el.className = 'blank-slot';
+  return el;
+}
+
+// ─── First Four ──────────────────────────────────────────────────────────────
+
+function renderFirstFour() {
+  const grid = document.getElementById('firstFourGrid');
+  FIRST_FOUR.forEach(game => {
+    const card = document.createElement('div');
+    card.className = 'ff-card';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'ff-card-label';
+    lbl.textContent = `(${game.seed}) Play-In`;
+    card.appendChild(lbl);
+
+    [game.t1, game.t2].forEach((team, i) => {
+      if (i === 1) {
+        const vs = document.createElement('div');
+        vs.className = 'ff-vs';
+        vs.textContent = 'VS';
+        card.appendChild(vs);
+      }
+      const row = document.createElement('div');
+      row.className = 'ff-team';
+      const sd = document.createElement('span');
+      sd.className = 'ff-seed';
+      sd.textContent = game.seed;
+      row.appendChild(sd);
+      const nm = document.createElement('span');
+      nm.textContent = team;
+      row.appendChild(nm);
+      card.appendChild(row);
+    });
+
+    const arr = document.createElement('div');
+    arr.className = 'ff-arrow';
+    arr.textContent = `→ Winner faces ${game.dest}`;
+    card.appendChild(arr);
+
+    grid.appendChild(card);
+  });
+}
+
+// ─── Region bracket ──────────────────────────────────────────────────────────
+
+function renderRegion(region) {
+  const sm = seedMap(region.teams);
+
+  // Build panel
+  const panel = document.createElement('div');
+  panel.className = 'region-panel';
+  panel.style.borderColor = region.color + '44';
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'region-header';
+  hdr.style.borderBottomColor = region.color + '44';
+  hdr.style.background = `linear-gradient(90deg, ${region.color}18 0%, transparent 100%)`;
+
+  const dot = document.createElement('div');
+  dot.className = 'region-dot';
+  dot.style.background = region.color;
+  dot.style.color = region.color;
+  hdr.appendChild(dot);
+
+  const title = document.createElement('div');
+  title.className = 'region-title';
+  title.style.color = region.color;
+  title.textContent = region.name + ' Region';
+  hdr.appendChild(title);
+  panel.appendChild(hdr);
+
+  // Round label bar
+  const roundLabelBar = document.createElement('div');
+  roundLabelBar.className = 'round-labels';
+  const roundNames = ['First Round', 'R2', 'Sweet 16', 'Elite Eight'];
+  const roundWidths = [220, 120, 100, 90];
+  roundNames.forEach((rn, i) => {
+    const lc = document.createElement('div');
+    lc.className = 'round-label-cell';
+    lc.style.width = roundWidths[i] + 'px';
+    lc.textContent = rn;
+    roundLabelBar.appendChild(lc);
+  });
+  panel.appendChild(roundLabelBar);
+
+  // Bracket body
+  const body = document.createElement('div');
+  body.className = 'bracket-body';
+
+  // ── Round 1: 8 matchups ────────────────────────────────────────
+  const r1col = document.createElement('div');
+  r1col.className = 'round-col';
+  r1col.style.width = '220px';
+  r1col.style.gap = '10px';
+
+  MATCHUP_ORDER.forEach(([s1, s2]) => {
+    const matchup = document.createElement('div');
+    matchup.className = 'matchup';
+    matchup.style.setProperty('--line', region.color + '55');
+
+    matchup.appendChild(makeTeamSlot(s1, sm[s1].name, sm[s1].conf, region.color));
+    matchup.appendChild(makeTeamSlot(s2, sm[s2].name, sm[s2].conf, region.color));
+
+    r1col.appendChild(matchup);
+  });
+  body.appendChild(r1col);
+
+  // ── Rounds 2, S16, E8 ─────────────────────────────────────────
+  const roundConfigs = [
+    { width: 120, count: 4, connector: true },
+    { width: 100, count: 2, connector: true },
+    { width: 90,  count: 1, connector: false },
+  ];
+
+  roundConfigs.forEach(({ width, count, connector }) => {
+    // connector strip
+    const connCol = document.createElement('div');
+    connCol.className = 'round-col';
+    connCol.style.width = '20px';
+    connCol.style.gap = '10px';
+    connCol.style.justifyContent = 'space-around';
+    // We'll add connector lines via individual elements
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      c.className = 'connector';
+      c.style.setProperty('--line', region.color + '55');
+      connCol.appendChild(c);
+    }
+    body.appendChild(connCol);
+
+    const rcol = document.createElement('div');
+    rcol.className = 'round-col';
+    rcol.style.width = width + 'px';
+    rcol.style.gap = '10px';
+
+    if (count === 1) {
+      // Elite Eight — single blank slot, no bracket connector
+      const solo = document.createElement('div');
+      solo.className = 'solo-blank';
+      rcol.appendChild(solo);
+    } else {
+      for (let i = 0; i < count; i++) {
+        const bm = document.createElement('div');
+        bm.className = 'blank-matchup';
+        bm.style.setProperty('--line', region.color + '55');
+        bm.appendChild(makeBlankSlot());
+        bm.appendChild(makeBlankSlot());
+        rcol.appendChild(bm);
+      }
+    }
+
+    body.appendChild(rcol);
+  });
+
+  panel.appendChild(body);
+  return panel;
+}
+
+// ─── Regions grid ────────────────────────────────────────────────────────────
+
+function renderRegions() {
+  const grid = document.getElementById('regionsGrid');
+  // Order: East (top-left), West (top-right), South (bottom-left), Midwest (bottom-right)
+  REGIONS.forEach(region => {
+    grid.appendChild(renderRegion(region));
+  });
+}
+
+// ─── Injury table ────────────────────────────────────────────────────────────
+
+function renderInjuryTable() {
+  const tbl = document.getElementById('injuryTable');
+
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  ['Player','Team','Seed / Region','Injury','Impact'].forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  INJURY_NOTES.forEach(note => {
+    const tr = document.createElement('tr');
+
+    const cells = [
+      { text: note.player,  cls: 'player-name' },
+      { text: note.team,    cls: 'team-cell' },
+      { text: note.seed,    cls: 'seed-region-cell' },
+      { text: note.injury,  cls: 'injury-text' },
+      { text: note.impact,  cls: 'impact-text' },
+    ];
+    cells.forEach(({ text, cls }) => {
+      const td = document.createElement('td');
+      td.className = cls;
+      td.textContent = text;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+renderFirstFour();
+renderRegions();
+renderInjuryTable();
+</script>
+</body>
+</html>
